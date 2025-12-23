@@ -1,0 +1,16 @@
+---
+title: "Untitled"
+format: html
+---
+
+```{r}
+#| label: setup
+
+library("tidyverse", include.only=c("%>%"))
+library("conflicted")
+
+```
+
+```{r}
+orig.df <- haven::read_dta("bechtel_original/bechtel_liesch_scheve_pnas.dta")
+```
