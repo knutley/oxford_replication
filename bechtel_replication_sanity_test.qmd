@@ -6,7 +6,8 @@ format: html
 ```{r}
 #| label: setup
 
-library("tidyverse", include.only=c("%>%"))
+library("tidyverse", include.only=c())
+library("magrittr",include.only=c())
 library("conflicted")
 
 ```
@@ -17,7 +18,6 @@ library("conflicted")
 #| label: load
 
 orig.df <- haven::read_dta("bechtel_original/bechtel_liesch_scheve_pnas.dta")
-colnames(orig.df)
 ```
 
 *Replication data loads successfully.*
@@ -49,3 +49,13 @@ The type computation is described only textually, in the *Supplementary Appendix
 `Coding of Types We estimate each respondent’s sensitivity to a- and d-inequality using their conditional redistribution behavior in combination with individual-level auxiliary regressions. The dependent variable is Given which measures the amount given (positive values) or taken in each of the proposed scenarios. Our independent variables are: ΔPoorer, which is the difference between the other respondent’s initial gift card value and the respondent’s own initial gift card value. The second independent variable is ΔRicher. This variable equals the difference between one’s own initial gift card value and the gift card value of other respondent. To derive individual-level sensitivities to a- and d-inequality, we estimate two auxiliary regressions for each respondent. To estimate d-sensitivity (the elasticity of redistribution behavior to disadvantageous inequality) we regress for each respondent the amount given on ΔPoorer using allobservations for which ΔPoorer ≥ 0 and multiply the estimated coefficient by -1. To estimate a- sensitivity (the elasticity of redistribution behavior to advantageous inequality), we regress for eachrespondent the amount given on ΔRicher using all observations for which ΔRicher ≥ 0. We use the estimated coefficients (d-sensitivity and a-sensitivity) to classify individuals’ redistribution types.`
 
 `We use the following coding rule where “sensitivity” refers to the estimated coefficient: - Equalizer: .25 ≤ sensitivity < .75 - Non-Equalizer: -.25 ≤ sensitivity < .25 - Other: All remaining cases. Robustness of Classification To assess the sensitivity of our results to these coding rules, we develop an alternative coding scheme that changes the intervals that identify Equalizers and Non-Equalizers: - EqualizerAlt: .2 ≤ sensitivity < .8 - Non-EqualizerAlt: -.2 ≤ sensitivity < .2 - OtherAlt: All remaining cases.`
+
+**Note however that the replication data does not contain the gift card values schedules – so the type estimates cannot be replicated.**
+
+```{r}
+colnames(orig.df)
+```
+
+## Synthetic Testing of Type Creation
+
+We
