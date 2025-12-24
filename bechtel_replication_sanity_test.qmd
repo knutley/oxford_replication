@@ -7,15 +7,16 @@ format: html
 #| label: setup
 
 library("tidyverse", include.only=c())
-library("magrittr",include.only=c())
+library("magrittr",include.only=c("%<>%","%>%"))
 library("conflicted")
+library("broom", include.only=c())
 
 ```
 
 ## Loading Replication Data
 
 ```{r}
-#| label: load
+#| label: replication_load
 
 orig.df <- haven::read_dta("bechtel_original/bechtel_liesch_scheve_pnas.dta")
 ```
@@ -44,18 +45,215 @@ svy: tab dtype atype if GE == 1
 
 **Note that the key variables, *dtype* and *atype* are pre-computed in the replication data file above, they are not computed from the data, nor does the replication code provide the functions to compute them.**
 
-The type computation is described only textually, in the *Supplementary Appendix*, as follows:
+The type computation is described only textually, in the *Supplementary Appendix*, as follows [^1]:
 
-`Coding of Types We estimate each respondent’s sensitivity to a- and d-inequality using their conditional redistribution behavior in combination with individual-level auxiliary regressions. The dependent variable is Given which measures the amount given (positive values) or taken in each of the proposed scenarios. Our independent variables are: ΔPoorer, which is the difference between the other respondent’s initial gift card value and the respondent’s own initial gift card value. The second independent variable is ΔRicher. This variable equals the difference between one’s own initial gift card value and the gift card value of other respondent. To derive individual-level sensitivities to a- and d-inequality, we estimate two auxiliary regressions for each respondent. To estimate d-sensitivity (the elasticity of redistribution behavior to disadvantageous inequality) we regress for each respondent the amount given on ΔPoorer using allobservations for which ΔPoorer ≥ 0 and multiply the estimated coefficient by -1. To estimate a- sensitivity (the elasticity of redistribution behavior to advantageous inequality), we regress for eachrespondent the amount given on ΔRicher using all observations for which ΔRicher ≥ 0. We use the estimated coefficients (d-sensitivity and a-sensitivity) to classify individuals’ redistribution types.`
+[^1]: See the estimation function section for the full text.
 
-`We use the following coding rule where “sensitivity” refers to the estimated coefficient: - Equalizer: .25 ≤ sensitivity < .75 - Non-Equalizer: -.25 ≤ sensitivity < .25 - Other: All remaining cases. Robustness of Classification To assess the sensitivity of our results to these coding rules, we develop an alternative coding scheme that changes the intervals that identify Equalizers and Non-Equalizers: - EqualizerAlt: .2 ≤ sensitivity < .8 - Non-EqualizerAlt: -.2 ≤ sensitivity < .2 - OtherAlt: All remaining cases.`
+`...  To derive individual-level sensitivities to a- and d-inequality, we estimate two auxiliary regressions for each respondent. To estimate d-sensitivity (the elasticity of redistribution behavior to disadvantageous inequality) we regress for each respondent the amount given on ΔPoorer using allobservations for which ΔPoorer ≥ 0 and multiply the estimated coefficient by -1. To estimate a- sensitivity (the elasticity of redistribution behavior to advantageous inequality), we regress for eachrespondent the amount given on ΔRicher using all observations for which ΔRicher ≥ 0. We use the estimated coefficients (d-sensitivity and a-sensitivity) to classify individuals’ redistribution types. ,,,`
 
-**Note however that the replication data does not contain the gift card values schedules – so the type estimates cannot be replicated.**
+**Note however that the replication data does not contain the elicited gift card amounts schedules for each recipient – so the type estimates cannot be replicated.**
 
 ```{r}
+#| label: replication_view
+
+
 colnames(orig.df)
 ```
 
-## Synthetic Testing of Type Creation
+## Testing of Type Creation
 
-We
+We'll run the type estimation using synthetic data from the T2M output.
+
+The raw output is currently untidy, so we'll tidy it up first, and then use the tidied inputs for the estimation function.
+
+**As it turns out the answers to the schedule is not a set of answers to repeated question, but a single answer to the prompt, and not possible to parse reliably automatically. Thus we generate an arbitrary synthetic schedule for test purposes.**
+
+```{r}
+#| label: experiment_load
+
+# read data from 12/23 '5 round' experiment
+t2m_output_raw.df <- 
+  readr::read_csv("sample_output/bechtel_etal2018_1_20251223T145443Z.csv")
+
+colnames(t2m_output_raw.df)
+
+cat("examples of schedule reponses\n\n")
+
+t2m_output_raw.df %>% 
+  dplyr::slice_sample(n=10) %>% 
+  dplyr::pull(`redistribution_schedule.response.round1`)
+
+```
+
+```{r}
+#| label: experiment_clean_and_synthesize
+
+# faclitator is not used in the game, but required -- filter this
+# game only has one round in reality, drop 2nd
+
+t2m_std.df <- 
+  t2m_output_raw.df %>%
+    dplyr::filter(
+      !stringr::str_detect(stringr::str_to_lower(role),"facilitator")) %>%
+    dplyr::select(`ID`,
+                  `treatment`,
+                   dplyr::matches("\\.response[\\.]?")) %>%
+    dplyr::select(-dplyr::matches("round[2-9]\\d*$")) %>%
+    dplyr::mutate(
+    endowment = 
+      stringr::str_extract(`treatment`,
+                           '.*endowment_(\\d+)_.*', group=1) %>%
+                            as.numeric(),
+    choice = 
+      stringr::str_extract(
+        stringr::str_to_lower(`categorical_choice.response`),
+         '\\s*(give|take|do nothing).*', group=1) %>%
+          dplyr::case_match(
+            "give" ~ 1,
+            "take" ~ -1,
+            "do nothing" ~ 0,
+          )
+      ,
+    
+    amount = choice *
+      (stringr::str_extract(
+        stringr::str_to_lower(`give_value.response`),
+         '(\\d+)', group=1) %>% as.numeric())
+  ) %>% 
+  dplyr::select(`endowment`,`ID`, `amount`)
+
+
+# a beheviorally unrealistic, but not logically impossible schedule generator
+gen_giving_schedule <- function( initial_e, initial_a ) {
+  schedule.df <- tibble::tibble(
+    endowment = c(15, 25, 50, 75, 85, 95)
+  )
+  
+ 
+ schedule.df %<>% 
+   dplyr::rowwise() %>%
+   dplyr::mutate(amount =
+                   initial_a + -1* sign(initial_e-endowment) * 
+                   (sqrt(abs(initial_e-endowment))+5*runif(1,min=-1,max=1)),
+                 amount = max(amount, endowment-100),
+                 amount = min(amount, endowment)
+                 ) %>%
+  dplyr::ungroup()
+  
+  schedule.df
+  
+  
+}
+
+t2m_synth.df <- t2m_std.df %>%
+  dplyr::rowwise() %>%
+  dplyr::mutate(schedule = list(gen_giving_schedule(endowment,amount))) %>%
+  dplyr::ungroup()
+```
+
+## **Estimation**
+
+Using the synthetic data, we code sensitivity estimation based on the *Supplementary Information* description below:
+
+`Coding of Types We estimate each respondent’s sensitivity to a- and d-inequality using their conditional redistribution behavior in combination with individual-level auxiliary regressions. The dependent variable is Given which measures the amount given (positive values) or taken in each of the proposed scenarios. Our independent variables are: ΔPoorer, which is the difference between the other respondent’s initial gift card value and the respondent’s own initial gift card value. The second independent variable is ΔRicher. This variable equals the difference between one’s own initial gift card value and the gift card value of other respondent. To derive individual-level sensitivities to a- and d-inequality, we estimate two auxiliary regressions for each respondent. To estimate d-sensitivity (the elasticity of redistribution behavior to disadvantageous inequality) we regress for each respondent the amount given on ΔPoorer using allobservations for which ΔPoorer ≥ 0 and multiply the estimated coefficient by -1. To estimate a- sensitivity (the elasticity of redistribution behavior to advantageous inequality), we regress for eachrespondent the amount given on ΔRicher using all observations for which ΔRicher ≥ 0. We use the estimated coefficients (d-sensitivity and a-sensitivity) to classify individuals’ redistribution types.`
+
+`We use the following coding rule where “sensitivity” refers to the estimated coefficient: - Equalizer: .25 ≤ sensitivity < .75 - Non-Equalizer: -.25 ≤ sensitivity < .25 - Other: All remaining cases.`
+
+```{r}
+
+#| label: estimate types
+
+
+estimate_sensitivies <- function(i_schedule,
+                           total_value = 100) {
+
+  # rules based data check: cannot give more than endowment
+  #or receive more than total
+  
+
+  x.df <- i_schedule
+  x.df  <- x.df %>%
+     # " Given measures the amount given or taken in each of the proposed scenarios"
+    dplyr::rename(given=amount) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate( 
+    
+      #"ΔPoorer, which is the difference between the other respondent’s initial gift card value and the respondent’s own initial gift card value"
+      d_poorer = (total_value-endowment) - endowment,
+      #ΔRicher. This variable equals the difference between one’s own initial gift card value and the gift card value of other respondent.:
+      d_richer = endowment - (total_value-endowment),
+      # sanity_check -- check that gift/take amounts are possible
+      d_valid_choice = ifelse(
+        ((given > endowment) || ((endowment - given) > total_value)),
+        FALSE,
+        TRUE
+      )
+    ) %>%
+    dplyr::ungroup()
+  
+  
+  rv <- list()
+  
+  #
+  #o estimate d-sensitivity (the elasticity of redistribution behavior to disadvantageous inequality) we regress for each respondent the amount given on ΔPoorer using allobservations for which ΔPoorer ≥ 0 and multiply the estimated coefficient by -1. 
+  
+ reg_poor <- x.df %>%
+      dplyr::filter(d_poorer>=0 & d_valid_choice) %>%
+      stats::lm(data = ., formula = given ~ d_poorer) %>% 
+      summary() %>% 
+      broom::tidy()
+ 
+ rv["d_sensitivity"] <- 
+   reg_poor %>% 
+    dplyr::filter(term=="d_poorer") %>%
+    pull(`estimate`) * -1
+ 
+ 
+ #To estimate a- sensitivity (the elasticity of redistribution behavior to advantageous inequality), we regress for eachrespondent the amount given on ΔRicher using all observations for which ΔRicher ≥ 0. 
+ 
+  reg_rich <- x.df %>%
+      dplyr::filter(d_richer>=0 & d_valid_choice) %>%
+      stats::lm(data = ., formula = given ~ d_richer) %>% 
+      summary() %>% 
+      broom::tidy()
+  
+
+  rv["a_sensitivity"] <- 
+   reg_rich %>% 
+    dplyr::filter(term=="d_richer") %>%
+    pull(`estimate`) 
+  
+#We use the following coding rule where “sensitivity” refers to the estimated coefficient: - Equalizer: .25 ≤ sensitivity < .75 - Non-Equalizer: -.25 ≤ sensitivity < .25 - Other: All remaining cases.
+  
+   cat_label<-function(x) {
+     dplyr::case_when(
+              ((x >=.25) && (x< .75)) ~ "Equalizer"  ,
+              ((x >= -.25) && (x < .25)) ~ "Non-Equalizer",
+              .default = "Other"
+            )
+   }
+  
+  rv["d_sensitivity_cat"] <- 
+   cat_label(rv[["d_sensitivity"]])
+  
+  
+   rv["a_sensitivity_cat"] <- 
+    cat_label(rv[["a_sensitivity"]])  
+   
+   as_tibble(rv)
+  
+}
+
+
+ 
+debug(estimate_sensitivies)
+
+estimate_sensitivies( t2m_synth.df[[2,"schedule"]][[1]])
+
+t2m_synth.df %>% 
+  dplyr::rowwise() %>%
+  dplyr::mutate(est_sensitivities = list(estimate_sensitivies(schedule))) %>%
+  dplyr::ungroup() %>%
+  tidyr::unnest(est_sensitivities)
+
+```
