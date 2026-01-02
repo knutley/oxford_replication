@@ -60,7 +60,7 @@ The type computation is described only textually, in the *Supplementary Appendix
 colnames(orig.df)
 ```
 
-*However, the replication data for figure 4, although it does not contain the original experiment responses, does contain sufficient data for selected individuals to reconstruct the response schedule – which will enable validation of the estimation code:*
+*Fortunately, the replication data for figure 4, although it does not contain the original experiment responses, does contain sufficient data individuals to reconstruct the response schedule, and appears to preserve the same row numbers as the main data file – which will enable validation of the estimation code:*
 
 ```{r}
 #| label: fig-4-data   
@@ -100,12 +100,12 @@ estimate_sensitivies <- function(i_schedule) {
     dplyr::mutate( 
     
       #"ΔPoorer, which is the difference between the other respondent’s initial gift card value and the respondent’s own initial gift card value"
-      d_poorer = other-endowment,
+      d_poorer = `other`-`endowment`,
       #ΔRicher. This variable equals the difference between one’s own initial gift card value and the gift card value of other respondent.:
-      d_richer = endowment -other,
+      d_richer = `endowment` -`other`,
       # sanity_check -- check that gift/take amounts are possible
       d_valid_choice = ifelse(
-        ((given > endowment) || ( given) < (-1*other)),
+        (`transfer_from` > endowment) || ( `transfer_from` < (-1*other)),
         FALSE,
         TRUE
       )
@@ -116,11 +116,11 @@ estimate_sensitivies <- function(i_schedule) {
   rv <- list()
   
   #
-  #o estimate d-sensitivity (the elasticity of redistribution behavior to disadvantageous inequality) we regress for each respondent the amount given on ΔPoorer using allobservations for which ΔPoorer ≥ 0 and multiply the estimated coefficient by -1. 
+  #o estimate d-sensitivity (the elasticity of redistribution behavior to disadvantageous inequality) we regress for each respondent the amount given on ΔPoorer using all  observations for which ΔPoorer ≥ 0 and multiply the estimated coefficient by -1. 
   
  reg_poor <- x.df %>%
       dplyr::filter(d_poorer>=0 & d_valid_choice) %>%
-      stats::lm(data = ., formula = given ~ d_poorer) %>% 
+      stats::lm(data = ., formula = transfer_from ~ d_poorer) %>% 
       summary() %>% 
       broom::tidy()
  
@@ -134,7 +134,7 @@ estimate_sensitivies <- function(i_schedule) {
  
   reg_rich <- x.df %>%
       dplyr::filter(d_richer>=0 & d_valid_choice) %>%
-      stats::lm(data = ., formula = given ~ d_richer) %>% 
+      stats::lm(data = ., formula = transfer_from ~ d_richer) %>% 
       summary() %>% 
       broom::tidy()
   
@@ -166,7 +166,7 @@ estimate_sensitivies <- function(i_schedule) {
 }
 ```
 
-*Validations*
+*Validation using replication data*
 
 ```{r}
 
@@ -174,15 +174,39 @@ estimate_sensitivies <- function(i_schedule) {
 
 
 
-fig4.df %>% 
-  dplyr::mutate(endowment=IA1, 
-                      #"ΔPoorer, which is the difference between the other respondent’s initial gift card value and the respondent’s own initial gift card value"
 
-                other= IA1+delta_poorer,
-                 #The share taken is the amount taken divided by the other respondent’s endowment,
-                given = -1*round(other  * shareTaken) ) %>%
-  dplyr::select(`ID`,`endowment`,`other`,`given`) %>%
-  tidyr::nest(sched=c(`endowment`,`other`,`given`)) -> sched.df
+# applying the description of the data in the figure from the SI
+#
+# * page 8: share taken = taken / other 
+# * page 8: share given = given / own 
+
+# # NOTE: surprizingly, `taken` has a different semantic in this dataset then in the replication dataset above, and `given` has a different semantic in this dataset than in the sensitivity regression formula. 
+
+# Defining a new variable: transfer_from , with consistent semantics
+# transfer from := the amount transfered from the subject to recipient... i.e. the amount given when the subject chose  "give", 0 if the subject chose to do nothing,and -1* the amount taken when the subject chose  "take". This definition is  identical to 'given' as used in the d_ and a_sensitivity calculations
+
+
+fig4.df %>% 
+  dplyr::mutate(endowment= `IA1`, 
+     #"ΔPoorer, which is the difference between the other respondent’s initial gift card value and the respondent’s own initial gift card value"
+
+      other= `IA1` + `delta_poorer`,
+     #The share taken is the amount taken divided by the other respondent’s endowment,
+                given = -1*round(`endowment`  * `shareTaken`)
+                %>% haven::zap_label(),
+                taken = ( `shareTaken` *other) %>% 
+                  haven::zap_label(),
+                transfer_from = case_when(
+                  `shareTaken` >0 ~ -taken,
+                  `shareTaken` <0 ~ given,
+                  `shareTaken` ==0  ~ 0
+                  
+                ) %>% haven::zap_label()
+                )%>%
+  dplyr::select(`ID`,`endowment`,`other`,`transfer_from`) %>%
+  tidyr::nest(sched=-`ID`) -> sched.df
+
+
 
 
 orig.df  %>% dplyr::bind_cols(sched.df) -> 
@@ -190,24 +214,29 @@ orig.df  %>% dplyr::bind_cols(sched.df) ->
 orig_extend.df[[1,"sched"]]
 
 
-
 orig_extend.df[[1,"sched"]] %>% estimate_sensitivies()
 
+
 orig_extend.df %>% 
-  dplyr::slice_head(n=10) %>%
+  dplyr::slice_sample(n=50) %>%
   dplyr::rowwise() %>%
   dplyr::mutate(est_sensitivities = list(estimate_sensitivies(sched))) %>%
   dplyr::ungroup() %>%
-  tidyr::unnest(est_sensitivities) -> orig_reestimates.df
-
-View(orig_reestimates.df  %>% select(dplyr::contains("sensitivity"), `atype`, `dtype`))
+  tidyr::unnest(est_sensitivities) %>%
+  dplyr::select(dplyr::contains("sensitivity"), `atype`, `dtype`) %>%
+  dplyr::mutate(dplyr::across(
+    c(d_sensitivity, d_sensitivity_r, a_sensitivity, a_sensitivity_r), ~ round(.x, digits=2))
+    )%>%
+  dplyr::relocate(d_sensitivity, d_sensitivity_r, a_sensitivity, a_sensitivity_r) 
 ```
+
+Visual comparison of sample of 50 rows confirmsthat estimation is identical to 2 sig decimals
 
 ## Cleaning Synthetic Output
 
 The raw output is currently untidy, so we'll tidy it up first, and then use the tidied inputs for the estimation function.
 
-**As it turns out the answers to the schedule is not a set of answers to repeated question, but a single answer to the prompt, and not possible to parse reliably automatically. Thus we generate an arbitrary synthetic schedule for test purposes.**
+**As it turns out the answers to the schedule is not a set of answers to repeated question, but a single answer to the prompt, and not possible to parse reliably automatically. Refactored as multiple prompts**
 
 ```{r}
 #| label: experiment_load
@@ -227,7 +256,7 @@ t2m_output_raw.df %>%
 ```
 
 ```{r}
-#| label: experiment_clean_and_synthesize
+#| label: experiment_clean
 
 # faclitator is not used in the game, but required -- filter this
 # game only has one round in reality, drop 2nd
@@ -264,32 +293,7 @@ t2m_std.df <-
   dplyr::select(`endowment`,`ID`, `amount`)
 
 
-# a beheviorally unrealistic, but not logically impossible schedule generator
-gen_giving_schedule <- function( initial_e, initial_a ) {
-  schedule.df <- tibble::tibble(
-    endowment = c(15, 25, 50, 75, 85, 95)
-  )
-  
- 
- schedule.df %<>% 
-   dplyr::rowwise() %>%
-   dplyr::mutate(amount =
-                   initial_a + -1* sign(initial_e-endowment) * 
-                   (sqrt(abs(initial_e-endowment))+5*runif(1,min=-1,max=1)),
-                 amount = max(amount, endowment-100),
-                 amount = min(amount, endowment)
-                 ) %>%
-  dplyr::ungroup()
-  
-  schedule.df
-  
-  
-}
 
-t2m_synth.df <- t2m_std.df %>%
-  dplyr::rowwise() %>%
-  dplyr::mutate(schedule = list(gen_giving_schedule(endowment,amount))) %>%
-  dplyr::ungroup()
 ```
 
 ## Estimating coefficients for synthetic output
@@ -297,14 +301,3 @@ t2m_synth.df <- t2m_std.df %>%
 Finally, we'll run the type estimation using synthetic data from the T2M output.
 
 Apply *estimate_sentitivities* to cleaned output data
-
-```{r}
-#| label: synthetic results
-
-t2m_synth.df %>% 
-  dplyr::rowwise() %>%
-  dplyr::mutate(est_sensitivities = list(estimate_sensitivies(schedule))) %>%
-  dplyr::ungroup() %>%
-  tidyr::unnest(est_sensitivities)
-
-```
