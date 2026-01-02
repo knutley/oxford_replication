@@ -236,24 +236,27 @@ Visual comparison of sample of 50 rows confirmsthat estimation is identical to 2
 
 The raw output is currently untidy, so we'll tidy it up first, and then use the tidied inputs for the estimation function.
 
-**As it turns out the answers to the schedule is not a set of answers to repeated question, but a single answer to the prompt, and not possible to parse reliably automatically. Refactored as multiple prompts**
+**As it turns out the answers to the schedule is not a set of answers to repeated question, but a single answer to the prompt, and not possible to parse reliably automatically. Refactored as multiple prompts,**
 
 ```{r}
 #| label: experiment_load
 
-# read data from 12/23 '5 round' experiment
-t2m_output_raw.df <- 
-  readr::read_csv("sample_output/bechtel_etal2018_1_20251223T145443Z.csv")
+# read data from  output of prompt v1.1
+
+t2m_output_raw.df <- readxl::read_excel(
+  "t2m_synthetic_respondents_pilot/bechtel_etal2018_output_1_20251230T160911Z.xlsx"
+  )
 
 colnames(t2m_output_raw.df)
 
 cat("examples of schedule reponses\n\n")
 
 t2m_output_raw.df %>% 
-  dplyr::slice_sample(n=10) %>% 
-  dplyr::pull(`redistribution_schedule.response.round1`)
+  dplyr::pull(`response_schedule1.response`)
 
 ```
+
+Note that (a) some responses are invalid. All responses should be in \[0, endowment\], we see negative responses, non-numeric responses. (b) pseudo-facilitator responses are interleaved...
 
 ```{r}
 #| label: experiment_clean
@@ -261,38 +264,100 @@ t2m_output_raw.df %>%
 # faclitator is not used in the game, but required -- filter this
 # game only has one round in reality, drop 2nd
 
-t2m_std.df <- 
-  t2m_output_raw.df %>%
-    dplyr::filter(
-      !stringr::str_detect(stringr::str_to_lower(role),"facilitator")) %>%
-    dplyr::select(`ID`,
-                  `treatment`,
-                   dplyr::matches("\\.response[\\.]?")) %>%
-    dplyr::select(-dplyr::matches("round[2-9]\\d*$")) %>%
-    dplyr::mutate(
-    endowment = 
-      stringr::str_extract(`treatment`,
-                           '.*endowment_(\\d+)_.*', group=1) %>%
-                            as.numeric(),
-    choice = 
+#t2m_std.df <- 
+  
+  extract_cat_greedy <- function(x) {
+    x %>%
+    stringr::str_to_lower() %>%
+    stringr::str_extract(
+         '\\s*(give|take|do nothing).*', group=1)
+  }
+  
+  extract_val_greedy <- function(x) {
+    x %>% 
+      stringr::str_to_lower() %>%
       stringr::str_extract(
-        stringr::str_to_lower(`categorical_choice.response`),
-         '\\s*(give|take|do nothing).*', group=1) %>%
-          dplyr::case_match(
+         '(\\-?\\d+)', group=1) %>%
+      as.numeric()
+  }
+  
+  calc_transfer_from <- function(value,cat) {
+    adj <- 
+       dplyr::case_match( cat,
             "give" ~ 1,
             "take" ~ -1,
             "do nothing" ~ 0,
+            NA ~ 1,
+            .default = 1
           )
-      ,
+     rv <- adj * value
+     rv
     
-    amount = choice *
-      (stringr::str_extract(
-        stringr::str_to_lower(`give_value.response`),
-         '(\\d+)', group=1) %>% as.numeric())
-  ) %>% 
-  dplyr::select(`endowment`,`ID`, `amount`)
+  }
 
-
+  
+  t2m_output_raw.df %>%
+    dplyr::filter( # filter facilitator
+      !stringr::str_detect(stringr::str_to_lower(role),"facilitator")) %>%
+      dplyr::select(`ID`, # drop metadata columns
+                  `treatment`,
+                   dplyr::matches("\\.response[\\.]?"))  %>% 
+       dplyr::mutate( # derive parameters from treatment 
+         phase1_endowment = 
+             stringr::str_extract(`treatment`,
+                           '.*endowment_(\\d+)_.*', group=1) %>%
+                            as.numeric(),
+         phase1_other = # budget in experiment is $100, so can derive other level
+             100 - phase1_endowment
+         ) %>%
+      # extract first phase choice
+      dplyr::mutate( phase1_transfer_from =
+                calc_transfer_from( 
+                  value = extract_val_greedy(`give_value.response`), 
+                 cat =  extract_cat_greedy(`categorical_choice.response`))) %>%
+      #extract second phase schedule elicitation
+      dplyr::rowwise() %>%
+      dplyr::mutate(
+        dplyr::across( dplyr::matches("schedule") , 
+                      ~ calc_transfer_from(value=extract_val_greedy(.x),
+                                          cat = extract_cat_greedy(.x))
+                      , .names="{.col}_clean"  )
+      ) %>%
+    ungroup()  -> t2m_clean.df
+  
+  # nest into response schedule form, based on known treatment offer schedule
+  
+  other_sched <- c(5,15,25,50,75,85,95)
+  
+  
+  build_sched <- function(e, o, t, ps) {
+    rv <- ps
+    other_sched <- c(5,15,25,50,75,85,95)
+    rv <- rv %>%
+      mutate(other = other_sched[schedule_number],
+             endowment = e) %>%
+      dplyr::bind_rows(tibble(endowment=e, other=o, transfer_from=t)) %>%
+      dplyr::distinct() %>%
+      select(-schedule_number)
+  }
+  
+  t2m_clean.df %>% 
+    dplyr::select(`ID`,
+                  dplyr::starts_with("phase1_"), 
+                  dplyr::ends_with("_clean")) %>%
+    tidyr::pivot_longer(cols= dplyr::ends_with("_clean"),
+                        values_to = "transfer_from") %>%
+    mutate(schedule_number=str_extract(`name`,
+                           '.*schedule(\\d+),*', group=1) %>% as.numeric()) %>%
+    dplyr::select(-name) %>%
+    tidyr::nest(pre_sched=c(`schedule_number`, `transfer_from`)) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(sched=list(build_sched(e=`phase1_endowment`, 
+                                    o=`phase1_other`,
+                                    t=`phase1_transfer_from`,
+                                    ps=`pre_sched`))) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(`ID`,`sched`) -> t2m_std.df
 
 ```
 
@@ -301,3 +366,17 @@ t2m_std.df <-
 Finally, we'll run the type estimation using synthetic data from the T2M output.
 
 Apply *estimate_sentitivities* to cleaned output data
+
+```{r}
+t2m_std.df %>%
+  dplyr::rowwise() %>%
+  dplyr::mutate(est_sensitivities = list(estimate_sensitivies(sched))) %>%
+  dplyr::ungroup() %>%
+  tidyr::unnest(est_sensitivities) -> t2m_est.df
+
+t2m_est.df %>% 
+ # dplyr::select(-sched) %>%
+  gt::gt()
+```
+
+Success! (plausibly)

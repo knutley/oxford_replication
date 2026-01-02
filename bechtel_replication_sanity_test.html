@@ -112,8 +112,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ✖ dplyr::lag()    masks stats::lag()
 ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"magrittr"</span>,<span class="at">include.only=</span><span class="fu">c</span>())</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"conflicted"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"magrittr"</span>,<span class="at">include.only=</span><span class="fu">c</span>(<span class="st">"%&lt;&gt;%"</span>,<span class="st">"%&gt;%"</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"conflicted"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"broom"</span>, <span class="at">include.only=</span><span class="fu">c</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="loading-replication-data" class="level2">
 <h2 class="anchored" data-anchor-id="loading-replication-data">Loading Replication Data</h2>
@@ -125,7 +126,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="replication-check" class="level2">
 <h2 class="anchored" data-anchor-id="replication-check"><strong>Replication Check</strong></h2>
 <p>The key claim from the paper is on pg 3611:</p>
-<p><code>individuals who give to those who are poorer are generallynot the same individuals who also take from others who are richer</code></p>
+<p><code>individuals who give to those who are poorer are generally not the same individuals who also take from others who are richer</code></p>
 <p>The primary quantitative summary supporting this result in the paper is Table 1, which summarizes the distribution of types:</p>
 <p><code>Frequencies of d-redistribution and a-redistribution types in the pooled sample and by country (weighted)</code></p>
 <p>The included replication file for this article “Replicate Results_Bechtel Liesch Scheve_PNAS.do” replicates Table 1, with the following code:</p>
@@ -134,10 +135,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>svy: tab dtype atype if GE == 0</p>
 <p>svy: tab dtype atype if GE == 1</p>
 <p><strong>Note that the key variables, <em>dtype</em>&nbsp;and <em>atype</em> are pre-computed in the replication data file above, they are not computed from the data, nor does the replication code provide the functions to compute them.</strong></p>
-<p>The type computation is described only textually, in the <em>Supplementary Appendix</em>, as follows:</p>
-<p><code>Coding of Types We estimate each respondent’s sensitivity to a- and d-inequality using their conditional redistribution behavior in combination with individual-level auxiliary regressions. The dependent variable is Given which measures the amount given (positive values) or taken in each of the proposed scenarios. Our independent variables are: ΔPoorer, which is the difference between the other respondent’s initial gift card value and the respondent’s own initial gift card value. The second independent variable is ΔRicher. This variable equals the difference between one’s own initial gift card value and the gift card value of other respondent. To derive individual-level sensitivities to a- and d-inequality, we estimate two auxiliary regressions for each respondent. To estimate d-sensitivity (the elasticity of redistribution behavior to disadvantageous inequality) we regress for each respondent the amount given on ΔPoorer using allobservations for which ΔPoorer ≥ 0 and multiply the estimated coefficient by -1. To estimate a- sensitivity (the elasticity of redistribution behavior to advantageous inequality), we regress for eachrespondent the amount given on ΔRicher using all observations for which ΔRicher ≥ 0. We use the estimated coefficients (d-sensitivity and a-sensitivity) to classify individuals’ redistribution types.</code></p>
-<p><code>We use the following coding rule where “sensitivity” refers to the estimated coefficient: - Equalizer: .25 ≤ sensitivity &lt; .75 - Non-Equalizer: -.25 ≤ sensitivity &lt; .25 - Other: All remaining cases. Robustness of Classification To assess the sensitivity of our results to these coding rules, we develop an alternative coding scheme that changes the intervals that identify Equalizers and Non-Equalizers: - EqualizerAlt: .2 ≤ sensitivity &lt; .8 - Non-EqualizerAlt: -.2 ≤ sensitivity &lt; .2 - OtherAlt: All remaining cases.</code></p>
-<p><strong>Note however that the replication data does not contain the gift card values schedules – so the type estimates cannot be replicated.</strong></p>
+<p>The type computation is described only textually, in the <em>Supplementary Appendix</em>, as follows <a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>:</p>
+<p><code>...  To derive individual-level sensitivities to a- and d-inequality, we estimate two auxiliary regressions for each respondent. To estimate d-sensitivity (the elasticity of redistribution behavior to disadvantageous inequality) we regress for each respondent the amount given on ΔPoorer using allobservations for which ΔPoorer ≥ 0 and multiply the estimated coefficient by -1. To estimate a- sensitivity (the elasticity of redistribution behavior to advantageous inequality), we regress for eachrespondent the amount given on ΔRicher using all observations for which ΔRicher ≥ 0. We use the estimated coefficients (d-sensitivity and a-sensitivity) to classify individuals’ redistribution types. ,,,</code></p>
+<p><strong>Note however that the replication data does not contain the elicited gift card amounts schedules for each recipient – so the type estimates cannot be replicated.</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(orig.df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -160,13 +160,1016 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 [49] "d_sensitivity"      "a_sensitivity"     </code></pre>
 </div>
 </div>
+<p><em>Fortunately, the replication data for figure 4, although it does not contain the original experiment responses, does contain sufficient data individuals to reconstruct the response schedule, and appears to preserve the same row numbers as the main data file – which will enable validation of the estimation code:</em></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig4.df <span class="ot">&lt;-</span> haven<span class="sc">::</span><span class="fu">read_dta</span>(<span class="st">"bechtel_original/bechtel_liesch_scheve_pnas Fig. S4.dta"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>fig4.df <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">slice_head</span>(<span class="at">n=</span><span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 4
+      ID   IA1 delta_poorer shareTaken
+   &lt;dbl&gt; &lt;dbl&gt;        &lt;dbl&gt;      &lt;dbl&gt;
+ 1     1    25          -20     0     
+ 2     1    25          -10     0     
+ 3     1    25            0     0     
+ 4     1    25           25    -0.0400
+ 5     1    25           50     0     
+ 6     1    25           60     0.541 
+ 7     1    25           70    -0.840 
+ 8     2    50          -45     0     
+ 9     2    50          -35     0     
+10     2    50          -25     0     </code></pre>
+</div>
+</div>
 </section>
-<section id="synthetic-testing-of-type-creation" class="level2">
-<h2 class="anchored" data-anchor-id="synthetic-testing-of-type-creation">Synthetic Testing of Type Creation</h2>
-<p>We</p>
+<section id="estimation-function" class="level2">
+<h2 class="anchored" data-anchor-id="estimation-function"><strong>Estimation Function</strong></h2>
+<p>Using the synthetic data, we code sensitivity estimation based on the <em>Supplementary Information</em> description below:</p>
+<p><code>Coding of Types We estimate each respondent’s sensitivity to a- and d-inequality using their conditional redistribution behavior in combination with individual-level auxiliary regressions. The dependent variable is Given which measures the amount given (positive values) or taken in each of the proposed scenarios. Our independent variables are: ΔPoorer, which is the difference between the other respondent’s initial gift card value and the respondent’s own initial gift card value. The second independent variable is ΔRicher. This variable equals the difference between one’s own initial gift card value and the gift card value of other respondent. To derive individual-level sensitivities to a- and d-inequality, we estimate two auxiliary regressions for each respondent. To estimate d-sensitivity (the elasticity of redistribution behavior to disadvantageous inequality) we regress for each respondent the amount given on ΔPoorer using allobservations for which ΔPoorer ≥ 0 and multiply the estimated coefficient by -1. To estimate a- sensitivity (the elasticity of redistribution behavior to advantageous inequality), we regress for eachrespondent the amount given on ΔRicher using all observations for which ΔRicher ≥ 0. We use the estimated coefficients (d-sensitivity and a-sensitivity) to classify individuals’ redistribution types.</code></p>
+<p><code>We use the following coding rule where “sensitivity” refers to the estimated coefficient: - Equalizer: .25 ≤ sensitivity &lt; .75 - Non-Equalizer: -.25 ≤ sensitivity &lt; .25 - Other: All remaining cases.</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: estimate types</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>estimate_sensitivies <span class="ot">&lt;-</span> <span class="cf">function</span>(i_schedule) {</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># rules based data check: cannot give more than endowment</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#or receive more than total</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  x.df <span class="ot">&lt;-</span> i_schedule</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.data.frame</span>(x.df)) {</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    x.df <span class="ot">&lt;-</span> x.df[[<span class="dv">1</span>]]</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  x.df  <span class="ot">&lt;-</span> x.df <span class="sc">%&gt;%</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>     <span class="co"># " Given measures the amount given or taken in each of the proposed scenarios"</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>( </span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>      <span class="co">#"ΔPoorer, which is the difference between the other respondent’s initial gift card value and the respondent’s own initial gift card value"</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">d_poorer =</span> <span class="st">`</span><span class="at">other</span><span class="st">`</span><span class="sc">-</span><span class="st">`</span><span class="at">endowment</span><span class="st">`</span>,</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>      <span class="co">#ΔRicher. This variable equals the difference between one’s own initial gift card value and the gift card value of other respondent.:</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">d_richer =</span> <span class="st">`</span><span class="at">endowment</span><span class="st">`</span> <span class="sc">-</span><span class="st">`</span><span class="at">other</span><span class="st">`</span>,</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>      <span class="co"># sanity_check -- check that gift/take amounts are possible</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">d_valid_choice =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>        (<span class="st">`</span><span class="at">transfer_from</span><span class="st">`</span> <span class="sc">&gt;</span> endowment) <span class="sc">||</span> ( <span class="st">`</span><span class="at">transfer_from</span><span class="st">`</span> <span class="sc">&lt;</span> (<span class="sc">-</span><span class="dv">1</span><span class="sc">*</span>other)),</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>        <span class="cn">FALSE</span>,</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">ungroup</span>()</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  rv <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  <span class="co">#</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>  <span class="co">#o estimate d-sensitivity (the elasticity of redistribution behavior to disadvantageous inequality) we regress for each respondent the amount given on ΔPoorer using all  observations for which ΔPoorer ≥ 0 and multiply the estimated coefficient by -1. </span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a> reg_poor <span class="ot">&lt;-</span> x.df <span class="sc">%&gt;%</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">filter</span>(d_poorer<span class="sc">&gt;=</span><span class="dv">0</span> <span class="sc">&amp;</span> d_valid_choice) <span class="sc">%&gt;%</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>      stats<span class="sc">::</span><span class="fu">lm</span>(<span class="at">data =</span> ., <span class="at">formula =</span> transfer_from <span class="sc">~</span> d_poorer) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summary</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>      broom<span class="sc">::</span><span class="fu">tidy</span>()</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a> rv[<span class="st">"d_sensitivity_r"</span>] <span class="ot">&lt;-</span> </span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>   reg_poor <span class="sc">%&gt;%</span> </span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(term<span class="sc">==</span><span class="st">"d_poorer"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(<span class="st">`</span><span class="at">estimate</span><span class="st">`</span>) <span class="sc">*</span> <span class="sc">-</span><span class="dv">1</span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a> <span class="co">#To estimate a- sensitivity (the elasticity of redistribution behavior to advantageous inequality), we regress for eachrespondent the amount given on ΔRicher using all observations for which ΔRicher ≥ 0. </span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>  reg_rich <span class="ot">&lt;-</span> x.df <span class="sc">%&gt;%</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">filter</span>(d_richer<span class="sc">&gt;=</span><span class="dv">0</span> <span class="sc">&amp;</span> d_valid_choice) <span class="sc">%&gt;%</span></span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>      stats<span class="sc">::</span><span class="fu">lm</span>(<span class="at">data =</span> ., <span class="at">formula =</span> transfer_from <span class="sc">~</span> d_richer) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summary</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>      broom<span class="sc">::</span><span class="fu">tidy</span>()</span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>  rv[<span class="st">"a_sensitivity_r"</span>] <span class="ot">&lt;-</span> </span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>   reg_rich <span class="sc">%&gt;%</span> </span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(term<span class="sc">==</span><span class="st">"d_richer"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pull</span>(<span class="st">`</span><span class="at">estimate</span><span class="st">`</span>) </span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a><span class="co">#We use the following coding rule where “sensitivity” refers to the estimated coefficient: - Equalizer: .25 ≤ sensitivity &lt; .75 - Non-Equalizer: -.25 ≤ sensitivity &lt; .25 - Other: All remaining cases.</span></span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>   cat_label<span class="ot">&lt;-</span><span class="cf">function</span>(x) {</span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>     dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>              ((x <span class="sc">&gt;=</span>.<span class="dv">25</span>) <span class="sc">&amp;&amp;</span> (x<span class="sc">&lt;</span> .<span class="dv">75</span>)) <span class="sc">~</span> <span class="st">"Equalizer"</span>  ,</span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>              ((x <span class="sc">&gt;=</span> <span class="sc">-</span>.<span class="dv">25</span>) <span class="sc">&amp;&amp;</span> (x <span class="sc">&lt;</span> .<span class="dv">25</span>)) <span class="sc">~</span> <span class="st">"Non-Equalizer"</span>,</span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>              <span class="at">.default =</span> <span class="st">"Other"</span></span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>   }</span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>  rv[<span class="st">"d_sensitivity_cat_r"</span>] <span class="ot">&lt;-</span> </span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>   <span class="fu">cat_label</span>(rv[[<span class="st">"d_sensitivity_r"</span>]])</span>
+<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a>   rv[<span class="st">"a_sensitivity_cat_r"</span>] <span class="ot">&lt;-</span> </span>
+<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat_label</span>(rv[[<span class="st">"a_sensitivity_r"</span>]])  </span>
+<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>   <span class="fu">as_tibble</span>(rv)</span>
+<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><em>Validation using replication data</em></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#| label:   validation</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># applying the description of the data in the figure from the SI</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># * page 8: share taken = taken / other </span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co"># * page 8: share given = given / own </span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co"># # </span><span class="al">NOTE</span><span class="co">: surprizingly, `taken` has a different semantic in this dataset then in the replication dataset above, and `given` has a different semantic in this dataset than in the sensitivity regression formula. </span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Defining a new variable: transfer_from , with consistent semantics</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co"># transfer from := the amount transfered from the subject to recipient... i.e. the amount given when the subject chose  "give", 0 if the subject chose to do nothing,and -1* the amount taken when the subject chose  "take". This definition is  identical to 'given' as used in the d_ and a_sensitivity calculations</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>fig4.df <span class="sc">%&gt;%</span> </span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">endowment=</span> <span class="st">`</span><span class="at">IA1</span><span class="st">`</span>, </span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>     <span class="co">#"ΔPoorer, which is the difference between the other respondent’s initial gift card value and the respondent’s own initial gift card value"</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">other=</span> <span class="st">`</span><span class="at">IA1</span><span class="st">`</span> <span class="sc">+</span> <span class="st">`</span><span class="at">delta_poorer</span><span class="st">`</span>,</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>     <span class="co">#The share taken is the amount taken divided by the other respondent’s endowment,</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>                <span class="at">given =</span> <span class="sc">-</span><span class="dv">1</span><span class="sc">*</span><span class="fu">round</span>(<span class="st">`</span><span class="at">endowment</span><span class="st">`</span>  <span class="sc">*</span> <span class="st">`</span><span class="at">shareTaken</span><span class="st">`</span>)</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>                <span class="sc">%&gt;%</span> haven<span class="sc">::</span><span class="fu">zap_label</span>(),</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>                <span class="at">taken =</span> ( <span class="st">`</span><span class="at">shareTaken</span><span class="st">`</span> <span class="sc">*</span>other) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>                  haven<span class="sc">::</span><span class="fu">zap_label</span>(),</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>                <span class="at">transfer_from =</span> <span class="fu">case_when</span>(</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>                  <span class="st">`</span><span class="at">shareTaken</span><span class="st">`</span> <span class="sc">&gt;</span><span class="dv">0</span> <span class="sc">~</span> <span class="sc">-</span>taken,</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>                  <span class="st">`</span><span class="at">shareTaken</span><span class="st">`</span> <span class="sc">&lt;</span><span class="dv">0</span> <span class="sc">~</span> given,</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>                  <span class="st">`</span><span class="at">shareTaken</span><span class="st">`</span> <span class="sc">==</span><span class="dv">0</span>  <span class="sc">~</span> <span class="dv">0</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>                  </span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>                ) <span class="sc">%&gt;%</span> haven<span class="sc">::</span><span class="fu">zap_label</span>()</span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>                )<span class="sc">%&gt;%</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="st">`</span><span class="at">ID</span><span class="st">`</span>,<span class="st">`</span><span class="at">endowment</span><span class="st">`</span>,<span class="st">`</span><span class="at">other</span><span class="st">`</span>,<span class="st">`</span><span class="at">transfer_from</span><span class="st">`</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">nest</span>(<span class="at">sched=</span><span class="sc">-</span><span class="st">`</span><span class="at">ID</span><span class="st">`</span>) <span class="ot">-&gt;</span> sched.df</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>orig.df  <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">bind_cols</span>(sched.df) <span class="ot">-&gt;</span> </span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>  orig_extend.df</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>orig_extend.df[[<span class="dv">1</span>,<span class="st">"sched"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+# A tibble: 7 × 3
+  endowment other transfer_from
+      &lt;dbl&gt; &lt;dbl&gt;         &lt;dbl&gt;
+1        25     5           0  
+2        25    15           0  
+3        25    25           0  
+4        25    50           1  
+5        25    75           0  
+6        25    85         -46.0
+7        25    95          21  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>orig_extend.df[[<span class="dv">1</span>,<span class="st">"sched"</span>]] <span class="sc">%&gt;%</span> <span class="fu">estimate_sensitivies</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 4
+  d_sensitivity_r a_sensitivity_r d_sensitivity_cat_r a_sensitivity_cat_r
+            &lt;dbl&gt;           &lt;dbl&gt; &lt;chr&gt;               &lt;chr&gt;              
+1          0.0873               0 Non-Equalizer       Non-Equalizer      </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>orig_extend.df <span class="sc">%&gt;%</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">50</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">est_sensitivities =</span> <span class="fu">list</span>(<span class="fu">estimate_sensitivies</span>(sched))) <span class="sc">%&gt;%</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">unnest</span>(est_sensitivities) <span class="sc">%&gt;%</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(dplyr<span class="sc">::</span><span class="fu">contains</span>(<span class="st">"sensitivity"</span>), <span class="st">`</span><span class="at">atype</span><span class="st">`</span>, <span class="st">`</span><span class="at">dtype</span><span class="st">`</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(dplyr<span class="sc">::</span><span class="fu">across</span>(</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(d_sensitivity, d_sensitivity_r, a_sensitivity, a_sensitivity_r), <span class="sc">~</span> <span class="fu">round</span>(.x, <span class="at">digits=</span><span class="dv">2</span>))</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    )<span class="sc">%&gt;%</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">relocate</span>(d_sensitivity, d_sensitivity_r, a_sensitivity, a_sensitivity_r) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There were 6 warnings in `dplyr::mutate()`.
+The first warning was:
+ℹ In argument: `est_sensitivities = list(estimate_sensitivies(sched))`.
+ℹ In row 18.
+Caused by warning in `summary.lm()`:
+! essentially perfect fit: summary may be unreliable
+ℹ Run `dplyr::last_dplyr_warnings()` to see the 5 remaining warnings.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 50 × 8
+   d_sensitivity d_sensitivity_r a_sensitivity a_sensitivity_r
+           &lt;dbl&gt;           &lt;dbl&gt;         &lt;dbl&gt;           &lt;dbl&gt;
+ 1          0               0             0               0   
+ 2          0.5             0.5           0.58            0.58
+ 3          0.3             0.3           0.9             0.9 
+ 4          0.62            0.62          0.26            0.26
+ 5          0.5             0.5           0               0   
+ 6          2.05            2.05         -0.37           -0.37
+ 7          0.34            0.34          0.32            0.32
+ 8          0               0             0.14            0.14
+ 9         -0.2            -0.2          -0.32           -0.32
+10          0               0             0               0   
+# ℹ 40 more rows
+# ℹ 4 more variables: d_sensitivity_cat_r &lt;chr&gt;, a_sensitivity_cat_r &lt;chr&gt;,
+#   atype &lt;dbl+lbl&gt;, dtype &lt;dbl+lbl&gt;</code></pre>
+</div>
+</div>
+<p>Visual comparison of sample of 50 rows confirmsthat estimation is identical to 2 sig decimals</p>
+</section>
+<section id="cleaning-synthetic-output" class="level2">
+<h2 class="anchored" data-anchor-id="cleaning-synthetic-output">Cleaning Synthetic Output</h2>
+<p>The raw output is currently untidy, so we’ll tidy it up first, and then use the tidied inputs for the estimation function.</p>
+<p><strong>As it turns out the answers to the schedule is not a set of answers to repeated question, but a single answer to the prompt, and not possible to parse reliably automatically. Refactored as multiple prompts,</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read data from  output of prompt v1.1</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>t2m_output_raw.df <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"t2m_synthetic_respondents_pilot/bechtel_etal2018_output_1_20251230T160911Z.xlsx"</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(t2m_output_raw.df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "ID"                                                                                                                                                                                                    
+ [2] "session_id"                                                                                                                                                                                            
+ [3] "group_id"                                                                                                                                                                                              
+ [4] "model_info"                                                                                                                                                                                            
+ [5] "temperature"                                                                                                                                                                                           
+ [6] "role"                                                                                                                                                                                                  
+ [7] "treatment_label"                                                                                                                                                                                       
+ [8] "system_message"                                                                                                                                                                                        
+ [9] "experiment_context"                                                                                                                                                                                    
+[10] "build_profile_qna"                                                                                                                                                                                     
+[11] "build_profile_backstories"                                                                                                                                                                             
+[12] "constants"                                                                                                                                                                                             
+[13] "(3-7)"                                                                                                                                                                                                 
+[14] "(8-10)"                                                                                                                                                                                                
+[15] "Country-specific self-reported highest level of education."                                                                                                                                            
+[16] "IA treatment: other's voucher"                                                                                                                                                                         
+[17] "IA treatment: own voucher"                                                                                                                                                                             
+[18] "Nationality"                                                                                                                                                                                           
+[19] "Self-reported age - recorded into catgories 18-29, 30-49, 50-69, and 70+."                                                                                                                             
+[20] "Self-reported education status."                                                                                                                                                                       
+[21] "Self-reported employment status."                                                                                                                                                                      
+[22] "Self-reported gender - 1 equals male and 0 female."                                                                                                                                                    
+[23] "Self-reported highest level of education - recorded into categories low, middle, and high."                                                                                                            
+[24] "facilitator"                                                                                                                                                                                           
+[25] "high income (highest quartile)"                                                                                                                                                                        
+[26] "low income (lowest quartile)"                                                                                                                                                                          
+[27] "middle income (interquartile range)"                                                                                                                                                                   
+[28] "treatment"                                                                                                                                                                                             
+[29] "“In politics people sometimes talk of \"left\" and \"right\". Where would you place yourself on this scale, where 0 means the left and 10 means the right?” left (0-2), center (3-7), and right (8-10)"
+[30] "“The government should redistribute wealth by heavy taxes on the rich.” 1 (strongly disagree) - 5 (strongly agree)"                                                                                    
+[31] "“The government should spend less on benefits for the poor.” 1 (strongly disagree) - 5 (strongly agree)"                                                                                               
+[32] "categorical_choice.raw"                                                                                                                                                                                
+[33] "categorical_choice.reasoning"                                                                                                                                                                          
+[34] "categorical_choice.response"                                                                                                                                                                           
+[35] "categorical_choice.speculation_score"                                                                                                                                                                  
+[36] "give_value.raw"                                                                                                                                                                                        
+[37] "give_value.reasoning"                                                                                                                                                                                  
+[38] "give_value.response"                                                                                                                                                                                   
+[39] "give_value.speculation_score"                                                                                                                                                                          
+[40] "response_schedule1.raw"                                                                                                                                                                                
+[41] "response_schedule1.reasoning"                                                                                                                                                                          
+[42] "response_schedule1.response"                                                                                                                                                                           
+[43] "response_schedule1.speculation_score"                                                                                                                                                                  
+[44] "response_schedule2.raw"                                                                                                                                                                                
+[45] "response_schedule2.reasoning"                                                                                                                                                                          
+[46] "response_schedule2.response"                                                                                                                                                                           
+[47] "response_schedule2.speculation_score"                                                                                                                                                                  
+[48] "response_schedule3.raw"                                                                                                                                                                                
+[49] "response_schedule3.reasoning"                                                                                                                                                                          
+[50] "response_schedule3.response"                                                                                                                                                                           
+[51] "response_schedule3.speculation_score"                                                                                                                                                                  
+[52] "response_schedule4.raw"                                                                                                                                                                                
+[53] "response_schedule4.reasoning"                                                                                                                                                                          
+[54] "response_schedule4.response"                                                                                                                                                                           
+[55] "response_schedule4.speculation_score"                                                                                                                                                                  
+[56] "response_schedule5.raw"                                                                                                                                                                                
+[57] "response_schedule5.reasoning"                                                                                                                                                                          
+[58] "response_schedule5.response"                                                                                                                                                                           
+[59] "response_schedule5.speculation_score"                                                                                                                                                                  
+[60] "response_schedule6.raw"                                                                                                                                                                                
+[61] "response_schedule6.reasoning"                                                                                                                                                                          
+[62] "response_schedule6.response"                                                                                                                                                                           
+[63] "response_schedule6.speculation_score"                                                                                                                                                                  
+[64] "response_schedule7.raw"                                                                                                                                                                                
+[65] "response_schedule7.reasoning"                                                                                                                                                                          
+[66] "response_schedule7.response"                                                                                                                                                                           
+[67] "response_schedule7.speculation_score"                                                                                                                                                                  </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"examples of schedule reponses</span><span class="sc">\n\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>examples of schedule reponses</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>t2m_output_raw.df <span class="sc">%&gt;%</span> </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">pull</span>(<span class="st">`</span><span class="at">response_schedule1.response</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "35.0"      NA          "Give $35." NA          "10.0"      NA         
+ [7] "25.0"      NA          "35.0"      NA          "10.0"      NA         
+[13] "23.0"      NA          "-5.0"      NA          "10.0"      NA         
+[19] "23.0"      NA          "-5.0"      NA          "-5.0"      NA         </code></pre>
+</div>
+</div>
+<p>Note that (a) some responses are invalid. All responses should be in [0, endowment], we see negative responses, non-numeric responses. (b) pseudo-facilitator responses are interleaved…</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># faclitator is not used in the game, but required -- filter this</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># game only has one round in reality, drop 2nd</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co">#t2m_std.df &lt;- </span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  extract_cat_greedy <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    x <span class="sc">%&gt;%</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    stringr<span class="sc">::</span><span class="fu">str_to_lower</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>    stringr<span class="sc">::</span><span class="fu">str_extract</span>(</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>         <span class="st">'</span><span class="sc">\\</span><span class="st">s*(give|take|do nothing).*'</span>, <span class="at">group=</span><span class="dv">1</span>)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  extract_val_greedy <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    x <span class="sc">%&gt;%</span> </span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>      stringr<span class="sc">::</span><span class="fu">str_to_lower</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>      stringr<span class="sc">::</span><span class="fu">str_extract</span>(</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>         <span class="st">'(</span><span class="sc">\\</span><span class="st">-?</span><span class="sc">\\</span><span class="st">d+)'</span>, <span class="at">group=</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.numeric</span>()</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>  calc_transfer_from <span class="ot">&lt;-</span> <span class="cf">function</span>(value,cat) {</span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>    adj <span class="ot">&lt;-</span> </span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>       dplyr<span class="sc">::</span><span class="fu">case_match</span>( cat,</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>            <span class="st">"give"</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>            <span class="st">"take"</span> <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>            <span class="st">"do nothing"</span> <span class="sc">~</span> <span class="dv">0</span>,</span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>            <span class="cn">NA</span> <span class="sc">~</span> <span class="dv">1</span>,</span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>            <span class="at">.default =</span> <span class="dv">1</span></span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>     rv <span class="ot">&lt;-</span> adj <span class="sc">*</span> value</span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>     rv</span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>  t2m_output_raw.df <span class="sc">%&gt;%</span></span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>( <span class="co"># filter facilitator</span></span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span>stringr<span class="sc">::</span><span class="fu">str_detect</span>(stringr<span class="sc">::</span><span class="fu">str_to_lower</span>(role),<span class="st">"facilitator"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="st">`</span><span class="at">ID</span><span class="st">`</span>, <span class="co"># drop metadata columns</span></span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a>                  <span class="st">`</span><span class="at">treatment</span><span class="st">`</span>,</span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>                   dplyr<span class="sc">::</span><span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">.response[</span><span class="sc">\\</span><span class="st">.]?"</span>))  <span class="sc">%&gt;%</span> </span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a>       dplyr<span class="sc">::</span><span class="fu">mutate</span>( <span class="co"># derive parameters from treatment </span></span>
+<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a>         <span class="at">phase1_endowment =</span> </span>
+<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a>             stringr<span class="sc">::</span><span class="fu">str_extract</span>(<span class="st">`</span><span class="at">treatment</span><span class="st">`</span>,</span>
+<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a>                           <span class="st">'.*endowment_(</span><span class="sc">\\</span><span class="st">d+)_.*'</span>, <span class="at">group=</span><span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a>                            <span class="fu">as.numeric</span>(),</span>
+<span id="cb23-47"><a href="#cb23-47" aria-hidden="true" tabindex="-1"></a>         <span class="at">phase1_other =</span> <span class="co"># budget in experiment is $100, so can derive other level</span></span>
+<span id="cb23-48"><a href="#cb23-48" aria-hidden="true" tabindex="-1"></a>             <span class="dv">100</span> <span class="sc">-</span> phase1_endowment</span>
+<span id="cb23-49"><a href="#cb23-49" aria-hidden="true" tabindex="-1"></a>         ) <span class="sc">%&gt;%</span></span>
+<span id="cb23-50"><a href="#cb23-50" aria-hidden="true" tabindex="-1"></a>      <span class="co"># extract first phase choice</span></span>
+<span id="cb23-51"><a href="#cb23-51" aria-hidden="true" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">mutate</span>( <span class="at">phase1_transfer_from =</span></span>
+<span id="cb23-52"><a href="#cb23-52" aria-hidden="true" tabindex="-1"></a>                <span class="fu">calc_transfer_from</span>( </span>
+<span id="cb23-53"><a href="#cb23-53" aria-hidden="true" tabindex="-1"></a>                  <span class="at">value =</span> <span class="fu">extract_val_greedy</span>(<span class="st">`</span><span class="at">give_value.response</span><span class="st">`</span>), </span>
+<span id="cb23-54"><a href="#cb23-54" aria-hidden="true" tabindex="-1"></a>                 <span class="at">cat =</span>  <span class="fu">extract_cat_greedy</span>(<span class="st">`</span><span class="at">categorical_choice.response</span><span class="st">`</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb23-55"><a href="#cb23-55" aria-hidden="true" tabindex="-1"></a>      <span class="co">#extract second phase schedule elicitation</span></span>
+<span id="cb23-56"><a href="#cb23-56" aria-hidden="true" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb23-57"><a href="#cb23-57" aria-hidden="true" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb23-58"><a href="#cb23-58" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">across</span>( dplyr<span class="sc">::</span><span class="fu">matches</span>(<span class="st">"schedule"</span>) , </span>
+<span id="cb23-59"><a href="#cb23-59" aria-hidden="true" tabindex="-1"></a>                      <span class="sc">~</span> <span class="fu">calc_transfer_from</span>(<span class="at">value=</span><span class="fu">extract_val_greedy</span>(.x),</span>
+<span id="cb23-60"><a href="#cb23-60" aria-hidden="true" tabindex="-1"></a>                                          <span class="at">cat =</span> <span class="fu">extract_cat_greedy</span>(.x))</span>
+<span id="cb23-61"><a href="#cb23-61" aria-hidden="true" tabindex="-1"></a>                      , <span class="at">.names=</span><span class="st">"{.col}_clean"</span>  )</span>
+<span id="cb23-62"><a href="#cb23-62" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">%&gt;%</span></span>
+<span id="cb23-63"><a href="#cb23-63" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ungroup</span>()  <span class="ot">-&gt;</span> t2m_clean.df</span>
+<span id="cb23-64"><a href="#cb23-64" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-65"><a href="#cb23-65" aria-hidden="true" tabindex="-1"></a>  <span class="co"># nest into response schedule form, based on known treatment offer schedule</span></span>
+<span id="cb23-66"><a href="#cb23-66" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-67"><a href="#cb23-67" aria-hidden="true" tabindex="-1"></a>  other_sched <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">15</span>,<span class="dv">25</span>,<span class="dv">50</span>,<span class="dv">75</span>,<span class="dv">85</span>,<span class="dv">95</span>)</span>
+<span id="cb23-68"><a href="#cb23-68" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-69"><a href="#cb23-69" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-70"><a href="#cb23-70" aria-hidden="true" tabindex="-1"></a>  build_sched <span class="ot">&lt;-</span> <span class="cf">function</span>(e, o, t, ps) {</span>
+<span id="cb23-71"><a href="#cb23-71" aria-hidden="true" tabindex="-1"></a>    rv <span class="ot">&lt;-</span> ps</span>
+<span id="cb23-72"><a href="#cb23-72" aria-hidden="true" tabindex="-1"></a>    other_sched <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">15</span>,<span class="dv">25</span>,<span class="dv">50</span>,<span class="dv">75</span>,<span class="dv">85</span>,<span class="dv">95</span>)</span>
+<span id="cb23-73"><a href="#cb23-73" aria-hidden="true" tabindex="-1"></a>    rv <span class="ot">&lt;-</span> rv <span class="sc">%&gt;%</span></span>
+<span id="cb23-74"><a href="#cb23-74" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">other =</span> other_sched[schedule_number],</span>
+<span id="cb23-75"><a href="#cb23-75" aria-hidden="true" tabindex="-1"></a>             <span class="at">endowment =</span> e) <span class="sc">%&gt;%</span></span>
+<span id="cb23-76"><a href="#cb23-76" aria-hidden="true" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(<span class="fu">tibble</span>(<span class="at">endowment=</span>e, <span class="at">other=</span>o, <span class="at">transfer_from=</span>t)) <span class="sc">%&gt;%</span></span>
+<span id="cb23-77"><a href="#cb23-77" aria-hidden="true" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb23-78"><a href="#cb23-78" aria-hidden="true" tabindex="-1"></a>      <span class="fu">select</span>(<span class="sc">-</span>schedule_number)</span>
+<span id="cb23-79"><a href="#cb23-79" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb23-80"><a href="#cb23-80" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb23-81"><a href="#cb23-81" aria-hidden="true" tabindex="-1"></a>  t2m_clean.df <span class="sc">%&gt;%</span> </span>
+<span id="cb23-82"><a href="#cb23-82" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="st">`</span><span class="at">ID</span><span class="st">`</span>,</span>
+<span id="cb23-83"><a href="#cb23-83" aria-hidden="true" tabindex="-1"></a>                  dplyr<span class="sc">::</span><span class="fu">starts_with</span>(<span class="st">"phase1_"</span>), </span>
+<span id="cb23-84"><a href="#cb23-84" aria-hidden="true" tabindex="-1"></a>                  dplyr<span class="sc">::</span><span class="fu">ends_with</span>(<span class="st">"_clean"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb23-85"><a href="#cb23-85" aria-hidden="true" tabindex="-1"></a>    tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(<span class="at">cols=</span> dplyr<span class="sc">::</span><span class="fu">ends_with</span>(<span class="st">"_clean"</span>),</span>
+<span id="cb23-86"><a href="#cb23-86" aria-hidden="true" tabindex="-1"></a>                        <span class="at">values_to =</span> <span class="st">"transfer_from"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb23-87"><a href="#cb23-87" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">schedule_number=</span><span class="fu">str_extract</span>(<span class="st">`</span><span class="at">name</span><span class="st">`</span>,</span>
+<span id="cb23-88"><a href="#cb23-88" aria-hidden="true" tabindex="-1"></a>                           <span class="st">'.*schedule(</span><span class="sc">\\</span><span class="st">d+),*'</span>, <span class="at">group=</span><span class="dv">1</span>) <span class="sc">%&gt;%</span> <span class="fu">as.numeric</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb23-89"><a href="#cb23-89" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>name) <span class="sc">%&gt;%</span></span>
+<span id="cb23-90"><a href="#cb23-90" aria-hidden="true" tabindex="-1"></a>    tidyr<span class="sc">::</span><span class="fu">nest</span>(<span class="at">pre_sched=</span><span class="fu">c</span>(<span class="st">`</span><span class="at">schedule_number</span><span class="st">`</span>, <span class="st">`</span><span class="at">transfer_from</span><span class="st">`</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb23-91"><a href="#cb23-91" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb23-92"><a href="#cb23-92" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">sched=</span><span class="fu">list</span>(<span class="fu">build_sched</span>(<span class="at">e=</span><span class="st">`</span><span class="at">phase1_endowment</span><span class="st">`</span>, </span>
+<span id="cb23-93"><a href="#cb23-93" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">o=</span><span class="st">`</span><span class="at">phase1_other</span><span class="st">`</span>,</span>
+<span id="cb23-94"><a href="#cb23-94" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">t=</span><span class="st">`</span><span class="at">phase1_transfer_from</span><span class="st">`</span>,</span>
+<span id="cb23-95"><a href="#cb23-95" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">ps=</span><span class="st">`</span><span class="at">pre_sched</span><span class="st">`</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb23-96"><a href="#cb23-96" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb23-97"><a href="#cb23-97" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="st">`</span><span class="at">ID</span><span class="st">`</span>,<span class="st">`</span><span class="at">sched</span><span class="st">`</span>) <span class="ot">-&gt;</span> t2m_std.df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="estimating-coefficients-for-synthetic-output" class="level2">
+<h2 class="anchored" data-anchor-id="estimating-coefficients-for-synthetic-output">Estimating coefficients for synthetic output</h2>
+<p>Finally, we’ll run the type estimation using synthetic data from the T2M output.</p>
+<p>Apply <em>estimate_sentitivities</em> to cleaned output data</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>t2m_std.df <span class="sc">%&gt;%</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">rowwise</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">est_sensitivities =</span> <span class="fu">list</span>(<span class="fu">estimate_sensitivies</span>(sched))) <span class="sc">%&gt;%</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">unnest</span>(est_sensitivities) <span class="ot">-&gt;</span> t2m_est.df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: There were 11 warnings in `dplyr::mutate()`.
+The first warning was:
+ℹ In argument: `est_sensitivities = list(estimate_sensitivies(sched))`.
+ℹ In row 1.
+Caused by warning in `summary.lm()`:
+! essentially perfect fit: summary may be unreliable
+ℹ Run `dplyr::last_dplyr_warnings()` to see the 10 remaining warnings.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>t2m_est.df <span class="sc">%&gt;%</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a> <span class="co"># dplyr::select(-sched) %&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="zwmsoygwfk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zwmsoygwfk table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#zwmsoygwfk thead, #zwmsoygwfk tbody, #zwmsoygwfk tfoot, #zwmsoygwfk tr, #zwmsoygwfk td, #zwmsoygwfk th {
+  border-style: none;
+}
+
+#zwmsoygwfk p {
+  margin: 0;
+  padding: 0;
+}
+
+#zwmsoygwfk .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#zwmsoygwfk .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#zwmsoygwfk .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#zwmsoygwfk .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#zwmsoygwfk .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#zwmsoygwfk .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zwmsoygwfk .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#zwmsoygwfk .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#zwmsoygwfk .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#zwmsoygwfk .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#zwmsoygwfk .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#zwmsoygwfk .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#zwmsoygwfk .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#zwmsoygwfk .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#zwmsoygwfk .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#zwmsoygwfk .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#zwmsoygwfk .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#zwmsoygwfk .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#zwmsoygwfk .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zwmsoygwfk .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#zwmsoygwfk .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#zwmsoygwfk .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#zwmsoygwfk .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zwmsoygwfk .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#zwmsoygwfk .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#zwmsoygwfk .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zwmsoygwfk .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zwmsoygwfk .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#zwmsoygwfk .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zwmsoygwfk .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#zwmsoygwfk .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zwmsoygwfk .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#zwmsoygwfk .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zwmsoygwfk .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#zwmsoygwfk .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zwmsoygwfk .gt_left {
+  text-align: left;
+}
+
+#zwmsoygwfk .gt_center {
+  text-align: center;
+}
+
+#zwmsoygwfk .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#zwmsoygwfk .gt_font_normal {
+  font-weight: normal;
+}
+
+#zwmsoygwfk .gt_font_bold {
+  font-weight: bold;
+}
+
+#zwmsoygwfk .gt_font_italic {
+  font-style: italic;
+}
+
+#zwmsoygwfk .gt_super {
+  font-size: 65%;
+}
+
+#zwmsoygwfk .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#zwmsoygwfk .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#zwmsoygwfk .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#zwmsoygwfk .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#zwmsoygwfk .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#zwmsoygwfk .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#zwmsoygwfk .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#zwmsoygwfk .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#zwmsoygwfk div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="ID" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">ID</th>
+<th id="sched" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col">sched</th>
+<th id="d_sensitivity_r" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">d_sensitivity_r</th>
+<th id="a_sensitivity_r" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">a_sensitivity_r</th>
+<th id="d_sensitivity_cat_r" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">d_sensitivity_cat_r</th>
+<th id="a_sensitivity_cat_r" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">a_sensitivity_cat_r</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_right" headers="ID">3954.0</td>
+<td class="gt_row gt_center" headers="sched">c(35, 30, 25, 13, 0, -5, -10, 25), c(5, 15, 25, 50, 75, 85, 95, 25), c(75, 75, 75, 75, 75, 75, 75, 75)</td>
+<td class="gt_row gt_right" headers="d_sensitivity_r">5.000000e-01</td>
+<td class="gt_row gt_right" headers="a_sensitivity_r">0.4973384</td>
+<td class="gt_row gt_left" headers="d_sensitivity_cat_r">Equalizer</td>
+<td class="gt_row gt_left" headers="a_sensitivity_cat_r">Equalizer</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="ID">4261.0</td>
+<td class="gt_row gt_center" headers="sched">c(35, 30, 25, 13, 0, -5, -10, 25), c(5, 15, 25, 50, 75, 85, 95, 25), c(75, 75, 75, 75, 75, 75, 75, 75)</td>
+<td class="gt_row gt_right" headers="d_sensitivity_r">5.000000e-01</td>
+<td class="gt_row gt_right" headers="a_sensitivity_r">0.4973384</td>
+<td class="gt_row gt_left" headers="d_sensitivity_cat_r">Equalizer</td>
+<td class="gt_row gt_left" headers="a_sensitivity_cat_r">Equalizer</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="ID">2609.0</td>
+<td class="gt_row gt_center" headers="sched">c(10, 5, 0, -13, -25, -30, -35, -25), c(5, 15, 25, 50, 75, 85, 95, 75), c(25, 25, 25, 25, 25, 25, 25, 25)</td>
+<td class="gt_row gt_right" headers="d_sensitivity_r">4.973384e-01</td>
+<td class="gt_row gt_right" headers="a_sensitivity_r">0.5000000</td>
+<td class="gt_row gt_left" headers="d_sensitivity_cat_r">Equalizer</td>
+<td class="gt_row gt_left" headers="a_sensitivity_cat_r">Equalizer</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="ID">356.0</td>
+<td class="gt_row gt_center" headers="sched">c(25, 25, 25, 25, 25, 25, 25, 25), c(5, 15, 25, 50, 75, 85, 95, 25), c(75, 75, 75, 75, 75, 75, 75, 75)</td>
+<td class="gt_row gt_right" headers="d_sensitivity_r">6.153481e-16</td>
+<td class="gt_row gt_right" headers="a_sensitivity_r">0.0000000</td>
+<td class="gt_row gt_left" headers="d_sensitivity_cat_r">Non-Equalizer</td>
+<td class="gt_row gt_left" headers="a_sensitivity_cat_r">Non-Equalizer</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="ID">634.0</td>
+<td class="gt_row gt_center" headers="sched">c(35, 30, 25, 13, 0, -5, -10, 25), c(5, 15, 25, 50, 75, 85, 95, 50), c(50, 50, 50, 50, 50, 50, 50, 50)</td>
+<td class="gt_row gt_right" headers="d_sensitivity_r">6.634731e-01</td>
+<td class="gt_row gt_right" headers="a_sensitivity_r">0.3365269</td>
+<td class="gt_row gt_left" headers="d_sensitivity_cat_r">Equalizer</td>
+<td class="gt_row gt_left" headers="a_sensitivity_cat_r">Equalizer</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="ID">2369.0</td>
+<td class="gt_row gt_center" headers="sched">c(10, 5, 0, -13, -25, -30, -35, -25), c(5, 15, 25, 50, 75, 85, 95, 75), c(25, 25, 25, 25, 25, 25, 25, 25)</td>
+<td class="gt_row gt_right" headers="d_sensitivity_r">4.973384e-01</td>
+<td class="gt_row gt_right" headers="a_sensitivity_r">0.5000000</td>
+<td class="gt_row gt_left" headers="d_sensitivity_cat_r">Equalizer</td>
+<td class="gt_row gt_left" headers="a_sensitivity_cat_r">Equalizer</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="ID">4069.0</td>
+<td class="gt_row gt_center" headers="sched">c(23, 18, 13, 0, -12, -17, -22, 25), c(5, 15, 25, 50, 75, 85, 95, 75), c(25, 25, 25, 25, 25, 25, 25, 25)</td>
+<td class="gt_row gt_right" headers="d_sensitivity_r">4.129278e-01</td>
+<td class="gt_row gt_right" headers="a_sensitivity_r">0.5000000</td>
+<td class="gt_row gt_left" headers="d_sensitivity_cat_r">Equalizer</td>
+<td class="gt_row gt_left" headers="a_sensitivity_cat_r">Equalizer</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="ID">1903.0</td>
+<td class="gt_row gt_center" headers="sched">c(-5, -15, -25, -50, -75, -85, -95, -50), c(5, 15, 25, 50, 75, 85, 95, 25), c(75, 75, 75, 75, 75, 75, 75, 75)</td>
+<td class="gt_row gt_right" headers="d_sensitivity_r">1.000000e+00</td>
+<td class="gt_row gt_right" headers="a_sensitivity_r">1.0000000</td>
+<td class="gt_row gt_left" headers="d_sensitivity_cat_r">Other</td>
+<td class="gt_row gt_left" headers="a_sensitivity_cat_r">Other</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="ID">1252.0</td>
+<td class="gt_row gt_center" headers="sched">c(10, 5, 0, -13, -25, -30, -35, -25), c(5, 15, 25, 50, 75, 85, 95, 50), c(50, 50, 50, 50, 50, 50, 50, 50)</td>
+<td class="gt_row gt_right" headers="d_sensitivity_r">3.365269e-01</td>
+<td class="gt_row gt_right" headers="a_sensitivity_r">0.6634731</td>
+<td class="gt_row gt_left" headers="d_sensitivity_cat_r">Equalizer</td>
+<td class="gt_row gt_left" headers="a_sensitivity_cat_r">Equalizer</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="ID">3911.0</td>
+<td class="gt_row gt_center" headers="sched">c(23, 18, 13, 0, -12, -17, -22, 25), c(5, 15, 25, 50, 75, 85, 95, 50), c(50, 50, 50, 50, 50, 50, 50, 50)</td>
+<td class="gt_row gt_right" headers="d_sensitivity_r">8.017964e-01</td>
+<td class="gt_row gt_right" headers="a_sensitivity_r">0.1982036</td>
+<td class="gt_row gt_left" headers="d_sensitivity_cat_r">Other</td>
+<td class="gt_row gt_left" headers="a_sensitivity_cat_r">Non-Equalizer</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_right" headers="ID">1098.0</td>
+<td class="gt_row gt_center" headers="sched">c(-5, -15, -25, -50, -75, -85, -95, -25), c(5, 15, 25, 50, 75, 85, 95, 75), c(25, 25, 25, 25, 25, 25, 25, 25)</td>
+<td class="gt_row gt_right" headers="d_sensitivity_r">8.859316e-01</td>
+<td class="gt_row gt_right" headers="a_sensitivity_r">1.0000000</td>
+<td class="gt_row gt_left" headers="d_sensitivity_cat_r">Other</td>
+<td class="gt_row gt_left" headers="a_sensitivity_cat_r">Other</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_right" headers="ID">2097.0</td>
+<td class="gt_row gt_center" headers="sched">c(-5, -15, -25, -25, -25, -25, -25, -25), c(5, 15, 25, 50, 75, 85, 95, 50), c(50, 50, 50, 50, 50, 50, 50, 50)</td>
+<td class="gt_row gt_right" headers="d_sensitivity_r">9.989599e-17</td>
+<td class="gt_row gt_right" headers="a_sensitivity_r">0.3712575</td>
+<td class="gt_row gt_left" headers="d_sensitivity_cat_r">Non-Equalizer</td>
+<td class="gt_row gt_left" headers="a_sensitivity_cat_r">Equalizer</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Success! (plausibly)</p>
 </section>
 
-</main>
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>See the estimation function section for the full text.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
